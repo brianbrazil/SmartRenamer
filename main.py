@@ -23,9 +23,8 @@ def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
 
-def generate_title(image):
-    client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
-    completion = client.chat.completions.create(
+def generate_title_for_image(image):
+    completion = client().chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {
@@ -43,6 +42,25 @@ def generate_title(image):
     )
     return completion.choices[0].message.content
 
+def generate_title_for_text(text):
+    completion = client().chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": [{
+                    "type": 'text',
+                    "text": f"Suggest a concise title for the attached text document. Return only the title. Include dates (with month precision) only if it is prominent in the document; place the dates in parentheses. Format it as a legal macos filename. Prefer spaces over underscores. Include '-' when necessary. This is the text document: {text}",
+                }]
+            },
+
+        ]
+    )
+    return completion.choices[0].message.content
+
+def client():
+    return OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
+
 def main(file_path):
     load_dotenv()
     mime = magic.from_file(file_path, mime=True)
@@ -50,10 +68,14 @@ def main(file_path):
 
     if mime == 'application/pdf':
         image = get_image_from_pdf(file_path)
-        title = generate_title(image)
+        title = generate_title_for_image(image)
     elif mime.startswith('image'):
         image = encode_image(file_path)
-        title = generate_title(image)
+        title = generate_title_for_image(image)
+    elif mime == 'text/plain':
+        with open(file_path, 'r') as f:
+            text = f.read()
+        title = generate_title_for_text(text)
     else:
         raise ValueError(f"Unsupported file type: {mime}")
 
