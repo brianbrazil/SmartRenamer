@@ -1,5 +1,7 @@
 from openai import OpenAI
 import base64
+import magic
+import mimetypes
 import pdb
 import sys
 import os
@@ -41,13 +43,22 @@ def generate_title(image):
     )
     return completion.choices[0].message.content
 
-def main(pdf_path):
-    """Main function to extract text from a PDF and generate a title."""
+def main(file_path):
     load_dotenv()
-    image = get_image_from_pdf(pdf_path)
-    title = generate_title(image)
-    print(title, end='')
+    mime = magic.from_file(file_path, mime=True)
+    extension = mimetypes.guess_extension(mime)
+
+    if mime == 'application/pdf':
+        image = get_image_from_pdf(file_path)
+        title = generate_title(image)
+    elif mime.startswith('image'):
+        image = encode_image(file_path)
+        title = generate_title(image)
+    else:
+        raise ValueError(f"Unsupported file type: {mime}")
+
+    print(f"{title}{extension}", end='')
 
 if __name__ == "__main__":
-    pdf_path = sys.argv[1]
-    main(pdf_path)
+    file_path = sys.argv[1]
+    main(file_path)
