@@ -90,4 +90,4 @@ class Namifier:
 if __name__ == "__main__":
     file_path = sys.argv[1]
     namifier = Namifier(file_path)
-    print(f"{namifier.title}{namifier.extension}")
+    print(f"{namifier.title}{namifier.extension}", end='')
