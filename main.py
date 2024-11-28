@@ -56,7 +56,7 @@ class Namifier:
                     "role": "user",
                     "content": [{
                         "type": 'text',
-                        "text": f"Suggest a concise title for the attached text document. Return only the title. Include dates (with month precision) only if it is prominent in the document; place the dates in parentheses. Format it as a legal macos filename. Prefer spaces over underscores. Include '-' when necessary. This is the text document: {text}",
+                        "text": f"Suggest a concise title for the attached text document. Return only the title. Include dates (with month precision) only if it is prominent in the document; place the dates in parentheses. Format it as a legal macos filename. Prefer spaces over underscores. Include '-' when necessary. This is the text document: {text[:1000]}",
                     }]
                 },
 
